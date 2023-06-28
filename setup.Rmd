@@ -1,0 +1,53 @@
+```{r setup, include=FALSE}
+#install.packages("rlang") 
+#read excel file
+library(readxl)
+
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(ggcorrplot)
+library(corrplot)
+library(DT)
+
+#fpp3 related 
+library(fpp3)
+library(tsibble)
+
+#Cleaning and visualizations
+library(DataExplorer)
+
+#Tables
+library(knitr)
+library(fable)
+
+library(pander)
+library(DT)
+library(skimr)
+library(here)
+library(fastDummies)
+library(likert)
+library(randomForest)
+
+library(mice)
+library(VIM)
+
+library(caret)
+library(kableExtra)
+library(car)
+library(rpart.plot)
+library(rattle)
+library(iml)
+library(DALEX)
+library(reshape2)
+library(factoextra)
+library(FactoMineR)
+library(gridExtra)
+library(explore)
+
+knitr::opts_chunk$set(echo = TRUE)
+wd = getwd()
+cat("Current working directory: ",wd)
+setwd(wd)
+```

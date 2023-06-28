@@ -1,0 +1,119 @@
+# **1.Introduction**
+
+Cardiovascular disease (CVD) is a collective term that covers various medical conditions affecting the heart and blood vessels, and it continues to be the leading cause of death in the United States. According to statistics from 2020, CVD accounted for 928,741 deaths in the country.
+
+## **1.1 Our data** 
+
+We have decided to focus our study on a type of heart disease called "Coronary Artery Disease"(CAD). The data set regroups several key factors that contribute to the development and progression of this disease, such as gender, age, smoking status, cholesterol levels, blood pressure, diabetes, and other medical conditions. 
+
+The data domain is likely a medical area, more precisely cardiology, and cardiovascular health. This data could be used by researchers, clinicians, and public health officials to understand better the risk factors associated with CAD and to develop effective prevention and treatment strategies to improve patient outcomes.
+
+This data was found on a data collection website called "Kaggle," and it was collected by an engineer who has worked with multiple organizations across various business problems. However, we do not have any further information about the historical use of the data. 
+
+## **1.2 Our purpose** 
+
+The purpose of our project is to create a model that can help doctors and healthcare professionals in their efforts to prevent heart disease by identifying patients who are at high risk and intervening with appropriate measures. 
+
+By utilizing this model, people working in the medical area may be able to take a more proactive and preventative approach to treat heart disease, potentially improving patient outcomes and reducing healthcare costs associated with treating the condition.
+
+## **1.3 Our objective**
+
+Our project objective is to perform consistent unsupervised and supervised machine learning techniques to predict the appearance of heart disease in patients based on various factors, such as gender, age, education, medical history, and cluster them based on their medical history.
+
+## **1.4 Methodology**
+
+:::{style="text-align: justify"}
+
+First, we identify the most crucial variable that contributes to obtaining a heart stroke.
+
+We fit classification task models such as Logistic Regression, Random Forest, Decision Trees, and Support Vector Machine (SVM), evaluate their performance, and then use the Dalex method to understand our models better and identify the most crucial variable contributing to obtaining heart stroke. 
+
+Dalex is a powerful package for a model explanation and can calculate the variable importance using various methods. We will use them for interpretation and analysis of the importance of variables in different models.
+
+Since the Support Vector Machine model cannot identify the importance of the variables, we explain the models which can do that: Random Forest, Logistic Regression, and Decision tree. 
+
+We must identify only one of the most important contributors to heart stroke.
+
+Second, we fit and evaluate regression task models to predict the essential variable.
+
+Third, we perform unsupervised learning techniques to cluster the patients.
+
+:::
+
+## **1.5 Research questions** 
+
+- What are the most significant factors contributing to cardiovascular disease in the future?
+
+- What is the medical history of patients who had a heart stroke and who have not?
+
+## **1.6 Outlook**
+
+:::{style="text-align: justify"}
+
+In **Section 2**, we describe the data.
+In **Section 3**, we perform necessary data modifications before exploratory data analysis in **Section 4** and data splitting and balancing in **Section 5**. In **Section 6**, we test classification task models to predict the `heart_stroke` variable and identify the most important variables. In **Section 7**, we cluster the patients with unsupervised learning. In **Section 8**, we perform regression task models to predict the identified the most important variable. Finally, in **Section 9**, we summarize the results and discuss the limitation and further research needed for our project.
+
+:::
+
+# **2. Data Description**
+
+## **2.1 The Features**
+
+::: {style="text-align: justify"}
+-   `gender` : gender \| **Categorical/Binary**
+
+-   `age` : age \| **Continuous**
+
+-   `education` : level of education \| **Ordinal**
+
+-   `currentSmoker` : 0 = nonsmoker; 1 = smoker \| **Categorical/Binary**
+
+-   `cigsPerDay` : how many cigarettes person smokes per day \| **Continuous**
+
+-   `BPMeds` : 0 = person is not on Blood Pressure medications; 1 = person is on Blood Pressure medications | **Categorical/Binary**
+
+-   `prevalentStroke` : 0 = stroke is not prevalent in family history; 1 = stroke is prevalent in family history | **Categorical/Binary**
+
+-   `prevalentHyp` : 0 = hypertension is not prevalent in family history; 1 = hypertension is prevalent in family history | **Categorical/Binary**
+
+-   `diabetes` : 0 = no; 1 = yes \| **Categorical/Binary**
+
+-   `totChol` : total cholesterol (mg/dL) \| **Continuous**
+
+-   `sysBP` : systolic blood pressure (mmHg) | **Continuous**
+
+-   `diaBP` : diastolic blood pressure (mmHg) | **Continuous**
+
+-   `BMI` : Body Mass Index \| **Continuous**
+
+-   `heartRate` : heart rate (beats per minute) \| **Continuous**
+
+-   `glucose` : total glucose mg/dL \| **Continuous**
+
+-   `Heart_stroke` : 0 = person obtained coronary heart disease; 1 = person has not obtained a  coronary heart disease \| **Categorical/Binary**
+
+source: <https://www.kaggle.com/datasets/mirzahasnine/heart-disease-dataset>
+:::
+
+## **2.2 The instances** {.tabset}
+
+```{r intro, echo = FALSE, message = FALSE, warning= FALSE}
+#import dataset 
+data <- read.csv(here::here("data/heart_disease.csv"))
+#data <- read_csv("Documents/GitHub/ML_Heart-Disease/data/heart_disease.csv")
+```
+
+### Data Table
+```{r}
+datatable(data)
+```
+
+### Summary of the data
+```{r}
+pander(summary(data))
+```
+
+### Skim summary of data
+```{r}
+skim(data)
+```

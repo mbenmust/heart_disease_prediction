@@ -1,0 +1,32 @@
+
+# **9. Recommendations and discussion**
+
+## **9.1 Summary**
+
+:::{style="text-align: justify"}
+
+After executing the analysis, we obtained important insights regarding predicting and understanding heart stroke and its contributing factors. Across all the classification models employed, age and systolic blood pressure appeared as the most significant variables in determining the occurrence of heart stroke. 
+
+Additionally, we applied unsupervised learning techniques to cluster patients with heart stroke. By utilizing these techniques, we gained insights into predicting heart stroke and identified the importance of variables such as blood pressure, BMI, heart rate, glucose, and education. These variables contribute significantly to the clustering of patients and provide valuable knowledge for comprehending the risk factors associated with heart stroke.
+
+Our results can therefore help medical sector employees in the process of predicting heart stroke based on the features mentioned above.
+
+:::
+
+## **9.2 Limitations and Further Analysis ** 
+
+:::{style="text-align: justify"}
+
+We have to keep in mind that we have computed the missing values in the raw dataset to be able to work with complete data about our patients. This technique allowed us to broaden our knowledge and try new methods for data imputation. One of the advantages is that it is a powerful tool that handles different types of missing values. However, it has its disadvantages : 
+- the MICE estimation adds an important level of uncertainty to our data and results
+- it does not take into account potential shifts in distribution or relationships
+
+To summarize, results obtained for the heart strokes prediction models, such as the best model and the most important features, might be highly influenced by MICE imputation. We, therefore, can not say that our models can be generalized on unseen data.
+
+It is also important to point out that working with data extracted from the medical sector needs medical expertise in terms of interpretation and understanding the link between our variables. Therefore, caution should be exercised in interpreting the results, and further validation and collaboration with medical professionals are necessary to ensure the accuracy and reliability of the findings.
+
+:::
+
+
+
+

@@ -1,0 +1,131 @@
+
+# **7.Patients clustering**
+
+:::{style="text-align: justify"}
+
+We are interested in separating the patients into groups according to their similarities across the features.To do so we are using unsupervised learning to create clusters of patients. 
+
+:::
+
+## **7.1 Model Training and Performance ** {.tabset}
+
+### Clustering
+
+**Distance computation**
+
+First, we compute the distances between our numerical variables using the Manhattan distance and plot them. 
+
+```{r heart_stroke_unsupervised_models,echo = FALSE, message = FALSE, warning= FALSE}
+#no need to keep the response variable 
+data_transformed_p <- df_tr_resr %>% select(-heart_stroke)
+
+#matrix of manhattan distance
+heart_stroke_d <- dist(data_transformed_p,method="manhattan")
+
+heart_stroke_melt <- melt(as.matrix(heart_stroke_d))
+
+head(heart_stroke_melt)
+
+#ggplot(data = heart_stroke_melt, aes(x=Var1, y=Var2, fill=value)) + 
+  #geom_tile() 
+
+```
+
+**Optimal number of clusters**
+
+:::{style="text-align: justify"}
+
+The optimal number of clusters is different in each method (wss and silhouette), we can conclude that it should be around two and seven. 
+
+:::
+
+```{r}
+#Choice of the number of clusters 
+
+fviz_nbclust(data_transformed_p,
+             hcut, hc_method="complete",
+             hc_metric="manhattan",
+             method = "wss", 
+             k.max = 25, verbose = FALSE)
+
+fviz_nbclust(data_transformed_p,
+            hcut, hc_method="complete",
+             hc_metric="manhattan",
+             method = "silhouette", 
+             k.max = 25, verbose = FALSE)
+
+```
+
+**Visualization of clusters** 
+
+
+:::{style="text-align: justify"}
+
+After computing different numbers of clusters, we noticed that two groups gave us clusters that we could differentiate. We look at the distribution of the features within each cluster.
+
+:::
+
+```{r,results='hide'}
+#Dendrogram with complete linkage
+heart_stroke_hc <- hclust(heart_stroke_d, method = "complete")
+plot(heart_stroke_hc, hang=-1)
+
+#Dendrogram with 3 clusters 
+rect.hclust(heart_stroke_hc, k=2)
+heart_stroke_clust <- cutree(heart_stroke_hc, k=2)
+heart_stroke_clust
+```
+
+**Clusters interpretation**
+
+:::{style="text-align: justify"}
+
+We look at the distribution of the features within each cluster.
+
+We have been able to classify patients into two clusters : 
+
+* Cluster 1: Identified patients have a moderate `sysBP`, `diaBP`, `heartRate`, and `glucose`.They smoke fewer cigarettes per day than Cluster 2. Most of them are men, younger than patients in Cluster 2. 
+
+* Cluster 2: Most of the patients in this cluster are women with a higher `age` than in Cluster 1. The cigarette consumption per day is higher than in Cluster 1. Patients in Cluster 2 have comparatively higher levels of `totChol`, `sysBP`, `diaBP`, `BMI`, `heartRate`, and `glucose` than patients in Cluster 1. 
+
+Education is similar for both clusters.
+
+:::
+
+```{r}
+#Interpretation of the clusters 
+heart_stroke_comp <- data.frame(data_transformed_p, Clust=factor(heart_stroke_clust), Id=row.names(data_transformed_p))
+heart_stroke_df <- melt(heart_stroke_comp, id=c("Id", "Clust"))
+head(heart_stroke_df)
+
+ggplot(heart_stroke_df, aes(y=value, group=Clust, fill=Clust)) +
+  geom_boxplot() +
+  facet_wrap(~variable, ncol=5, nrow=3)
+
+```
+
+
+48.5% of the patients in Cluster two have experienced a heart stroke, while only 15% of patients in Cluster one. 
+
+Patients in Cluster two have equal chances of getting and not getting a heart stroke. However, patients in Cluster one have lower risks. 
+
+We can conclude that having a medical history similar to the patients in Cluster two does not ensure getting a heart stroke. However, the risks are higher for such patients than for the patients with a medical history in Cluster one.
+
+```{r}
+data_transformed$Id <- row.names(data_transformed)
+clusters_df <- data_transformed %>% select("heart_stroke", "Id") %>% merge(heart_stroke_df,by="Id")
+```
+
+```{r}
+#if (interactive()) {
+#
+#  clusters_df %>% 
+#    select(heart_stroke, Clust) %>%
+#    explore(target = Clust)
+#}
+
+knitr::include_graphics("clust.png")
+
+```
+
+

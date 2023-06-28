@@ -1,0 +1,60 @@
+---
+title: "Appendix"
+output: html_document
+date: "2023-05-08"
+---
+
+# Data Imputation 
+
+```{r data_imputation, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#import dataset 
+data <- read.csv(here::here("data/heart_disease.csv"))
+```
+
+```{r}
+library(mice)
+library(VIM)
+#Plotting missing values 
+aggr(data, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.7, gap=3, ylab=c("Histogram of missing values","Pattern"))
+```
+```{r}
+#Proportion of total missing values 
+sum(is.na(data))/nrow(data)
+```
+
+:::{style="text-align: justify"}
+
+As we can see missing values represent a high proportion of our data set,almost 15%,most of them come from continuous variables such as "glucose","BPMeds","totChol","cigsPerDay" and "BMI".Therefore we have decided to impute these values using the most appropriate method fo continuous variables : Predictive Mean Matching.The latter consists in using the observed values from the closest matching cases to impute missing values taking into account the correlation between variables 
+
+:::
+
+```{r}
+#Method for continuous data
+imputed_data <- mice(data,m=19,maxit=50,method = "pmm",seed=500)
+summary(imputed_data)
+#Check immputed data 
+#Given that we have chose m=19 , for every instance where there is missing value we have 19 solutions
+imputed_data$imp$glucose
+imputed_data$imp$BPMeds
+imputed_data$imp$totChol
+imputed_data$imp$cigsPerDay
+imputed_data$imp$BMI
+#Get complete data 
+complete_data <- complete(imputed_data,3)
+#Optimization for the dataset
+head(data,n=15)
+#percentage of error : how the predicted data is deviating from the original data 
+a=(abs(data[,c("glucose", "BPMeds", "totChol","cigsPerDay","BMI")]-complete_data[,c("glucose", "BPMeds", "totChol","cigsPerDay","BMI")])) #see the difference except the categorical variable education
+#Save file and load complete datase
+write.csv(x=complete_data,file ="complete_data_MICE.csv")
+data <- read.csv("complete_data_MICE.csv")
+```
+
+```{r}
+#removing missing values from "education" variable 
+data <- na.omit(data)
+```

@@ -1,0 +1,21 @@
+# **Personal information and non-plagiarism statement** {.tabset}
+
+## **Personal Information**
+Group G
+
+* Meriem Ben Mustapha | meriem.benmustapha@unil.ch
+* Khrystyna Khmilovska | khrystyna.khmilovska@unil.ch
+
+## **Non-plagiarism Statement**
+*This project was written by us and in our own words, except for quotations from published and unpublished
+sources, which are clearly indicated and acknowledged as such. We are conscious that the incorporation
+of material from other works or a paraphrase of such material without acknowledgement will be treated as
+plagiarism, subject to the custom and usage of the subject, according to the University Regulations. The 
+source of any picture, map or other illustration is also indicated, as is the source, published or unpublished,
+of any material not resulting from our own research.*
+
+```{r}
+knitr::include_graphics("signature1.png")
+knitr::include_graphics("signature2.png")
+
+```

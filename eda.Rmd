@@ -1,0 +1,182 @@
+# **4.Exploratory Data Analysis**
+
+```{r eda, echo = FALSE, message = FALSE, warning= FALSE}
+#removing missing values from "education" variable 
+data_transformed <- na.omit(data_transformed)
+```
+
+## **4.1 Underlying structure** {.tabset}
+
+### **Variable Distribution**
+
+:::{style="text-align: justify"}
+
+We can see that our continuous variables are normally distributed, which is advantageous for our machine learning models as it can ensure good reliability in the results.
+
+:::
+
+```{r}
+#Variables distribution
+plot_histogram(data_transformed)
+```
+
+
+### **Correlation comparison**
+
+:::{style="text-align: justify"}
+
+This correlation plot highlights any relationship between our features: there are strong relationships with systolic blood pressure, diabetes blood pressure, and somewhat glucose. Regarding our features, systolic blood pressure, diastolic blood pressure, and body mass index are highly correlated, as expected.
+
+:::
+
+```{r}
+#Pairwise comparison
+corrplot(cor(data_transformed))
+```
+
+
+## **4.2 Response variable analysis** {.tabset}
+
+
+### **Heart stroke by systolic blood pressure**
+
+
+This boxplot gives us a first idea about the `sysBP` variable. Heart stroke patients have a higher systolic blood pressure than those who do not. We assume that this variable is important for our further prediction. 
+
+
+```{r}
+#creating intervals for Systole blood pressure 
+ggplot(data, aes(x = as.factor(Heart_.stroke), y = sysBP)) +
+  geom_boxplot() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 3, color = "red") +
+  stat_summary(fun.y = median, geom = "text", aes(label = round(..y.., 2)), vjust = -1) +
+  stat_summary(fun.y = max, geom = "text", aes(label = round(..y.., 2)), vjust = 1.5, color = "blue") +
+  labs(x = "Heart Stroke", y = "Systolic blood pressure")+
+   ggtitle("Boxplot analysis")
+```
+
+
+
+### **Heart stroke by diastolic blood pressure**
+
+We also analyzed the `diaBP` variable and visualized that half of the patients with a heart stroke have a higher diastolic blood pressure than half of the patients that do not have one.It is, therefore, an interesting variable.
+
+```{r}
+
+  ggplot(data, aes(x = as.factor(Heart_.stroke), y = diaBP)) +
+  geom_boxplot() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 3, color = "red") +
+  stat_summary(fun.y = median, geom = "text", aes(label = round(..y.., 2)), vjust = -1) +
+  stat_summary(fun.y = max, geom = "text", aes(label = round(..y.., 2)), vjust = 1.5, color = "blue") +
+  labs(x = "Heart Stroke", y = "Diastolic blood pressure")+
+   ggtitle("Boxplot analysis")
+```
+
+
+
+### **Heart stroke by cigarette consumption**
+
+Both box plots show a right-skewed distribution for the total number of cigarettes per day variable. As we can see below, most of our patients/instances that do not have a heart stroke do not smoke, which has to be considered in our further analysis. 
+
+```{r}
+bxp <- ggplot(data, aes(x = Heart_.stroke, y = cigsPerDay, group = Heart_.stroke)) +
+    geom_boxplot(outlier.colour = "red",
+        outlier.shape = 8,
+        outlier.size = 1) +
+   scale_fill_manual(name = "Heart stroke", labels = c("No", "Yes")) +
+    labs(x = "Heart stroke", y = "Number of cigarets per day")+
+  ggtitle("Boxplot analysis")
+bxp
+```
+
+```{r}
+
+ggplot(data_new, aes(x = cigsPerDay)) + 
+  geom_histogram(bins = 20, fill = 'pink', colour = 'black') + 
+  ggtitle('Cigs Per Day Distribution') + 
+  xlab('Cigsperday') +
+  ylab('Frequency')
+
+```
+
+
+
+### **Heart stroke by total cholesterol**
+
+For the `totChol` variable, half of the patients having a heart stroke have a higher cholesterol concentration relative to the patients not having one.
+
+```{r}
+ggplot(data, aes(x = as.factor(Heart_.stroke), y = totChol)) +
+  geom_boxplot() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 3, color = "red") +
+  stat_summary(fun.y = median, geom = "text", aes(label = round(..y.., 2)), vjust = -1) +
+  stat_summary(fun.y = max, geom = "text", aes(label = round(..y.., 2)), vjust = 1.5, color = "blue") +
+  labs(x = "Heart Stroke", y = "Total Cholesterol")+
+   ggtitle("Boxplot analysis")
+```
+
+
+### **Heart stroke by Body Mass Index**
+
+For the `BMI` variable, half of the patients having a heart stroke have a slightly higher body mass index than patients that do not have a heart stroke. 
+
+```{r}
+ggplot(data, aes(x = as.factor(Heart_.stroke), y = BMI)) +
+  geom_boxplot() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 3, color = "red") +
+  stat_summary(fun.y = median, geom = "text", aes(label = round(..y.., 2)), vjust = -1) +
+  stat_summary(fun.y = max, geom = "text", aes(label = round(..y.., 2)), vjust = 1.5, color = "blue") +
+  labs(x = "Heart Stroke", y = "Body Mass Index")+
+   ggtitle("Boxplot analysis")
+```
+
+
+
+### **Heart stroke by glucose**
+
+The `glucose` variable has approximately the same distribution among patients with heart stroke and those without.
+
+```{r}
+ggplot(data, aes(x = as.factor(Heart_.stroke), y = glucose)) +
+  geom_boxplot() +
+  stat_summary(fun.y = median, geom = "point", shape = 18, size = 3, color = "red") +
+  stat_summary(fun.y = median, geom = "text", aes(label = round(..y.., 2)), vjust = -1) +
+  stat_summary(fun.y = max, geom = "text", aes(label = round(..y.., 2)), vjust = 1.5, color = "blue") +
+  labs(x = "Heart Stroke", y = "Glucose")+
+   ggtitle("Boxplot analysis")
+```
+
+
+### **Heart stroke analysis for categorical variables **
+
+These bar plots display the distribution of the response variable for every categorical variable. This is useful to know already if specific categories make a significant impact on the response variable. 
+
+For example, the proportion of patients with heart disease is approximately the same for both genders. However, our data is unbalanced, and we have more women patients. Accordingly, the probability of getting a heart stroke among men is higher.
+
+The response variable is similarly spread among the `education` thus, we can assume that there `education` will not be an important feature for heart stroke analysis.  
+
+Regarding `diabetes` and `BPMeds`, most patients have values equal to zero. Both values are, therefore, not interesting for our further analysis. 
+
+```{r}
+data %>% select(Gender,diabetes,education,BPMeds,Heart_.stroke) %>%
+  explore_all(target = Heart_.stroke) 
+```
+
+
+
+### **Heart stroke analysis for overall data **
+
+The `heart_stroke` category we will predict is unbalanced. We have more instances of not having a heart_stroke than having one. Consequently, models will predict more often not negative cases of a heart_stroke rather than positive ones. As indicating the positive instances of heart stroke is of interest, the predictive accuracy of the positive class (sensitivity) should be higher. 
+
+
+```{r}
+prop_response <- table(data_transformed$heart_stroke) / nrow(data_transformed)
+
+bar_colors <- c("lightcoral","lightgreen")
+
+barplot(prop_response, main="Frequency of heart stroke categorical levels", xlab=" ", ylab="Proportion", col=bar_colors)
+```
+
+
+
+

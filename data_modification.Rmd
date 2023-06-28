@@ -1,0 +1,71 @@
+
+# **3. Data Modification**
+
+```{r data_modification, echo = FALSE, message = FALSE, warning= FALSE}
+#Load imputed data 
+data_new <- read.csv(here::here("complete_data_MICE.csv"))
+#data_new <- read_csv("Documents/GitHub/ML_Heart-Disease/complete_data_MICE.csv")
+```
+
+:::{style="text-align: justify"}
+Variables `Gender`,  `prevalentStroke`, and `Heart_stroke` are transformed into numeric dummy variables.
+
+Variable `education` are transformed into Liker scale.
+
+Variables `cigsPerDay`, `totChol`, `sysBP`, `diaBP`, `BMI`, `heartRate`, and `glucose`, `age` are normalized to one scale.
+
+The variable `prevalent_stroke` does not provide useful information to differentiate between different instances in the dataset. Since it has the same value for all instances, it does not contribute to any variation in the data. Therefore, we removed it.
+:::
+
+```{r}
+# Convert gender to numeric dummy variable
+
+data_new <- data_new %>%
+  mutate(gender = ifelse(Gender == "Female", 1, 0),
+         heart_stroke = ifelse(Heart_.stroke == "yes", 1, 0),
+         prevalent_stroke = ifelse(prevalentStroke == "Yes", 1, 0))
+
+dummys <- data_new %>% select(gender, heart_stroke, prevalent_stroke, BPMeds)
+
+
+# scale numeric variables
+num <- data_new %>% select(cigsPerDay, totChol, sysBP, diaBP, BMI, heartRate, glucose, age) %>% 
+  mutate_at(vars(cigsPerDay, totChol, sysBP, diaBP, BMI, heartRate, glucose, age), as.numeric) %>% scale() %>% as.data.frame()
+
+
+ #Create a liker scale for the education column
+liker <- data_new %>%
+  mutate(education = ifelse(education  == "uneducated", 1,
+                            ifelse(education == "primaryschool", 2,
+                                   ifelse(education == "graduate", 3,
+                                          ifelse(education == "postgraduate", 4, 0)))))
+
+                          
+education <- liker$education
+
+data_transformed_n <- data.frame(dummys, num, education)
+```
+
+```{r,echo=FALSE}
+plot_histogram <- function(data_transformed_n) {
+  
+# Plot the histograms
+  par(mfrow = c(2, ncol(data_transformed_n)/2)) # set up the grid for plots
+  for (i in 1:ncol(data_transformed_n)) {
+    hist(data_transformed_n[, i], main = colnames(data_transformed_n)[i], xlab = "", col = "lightblue", border = "white")
+  }
+}
+```
+
+```{r}
+#Variables distribution after modification
+plot_histogram(data_transformed_n)
+```
+
+```{r}
+data_transformed <- data_transformed_n %>% 
+  select(-prevalent_stroke)
+```
+
+
+

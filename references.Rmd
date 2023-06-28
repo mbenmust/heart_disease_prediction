@@ -1,0 +1,8 @@
+# **10. References**
+
+:::{style="text-align: justify"}
+
+Hasnine, M. (n.d.). *Heart Disease Dataset* \[Data set\]. Available at: <https://www.kaggle.com/datasets/mirzahasnine/heart-disease-dataset>.
+
+:::
+

@@ -1,0 +1,6 @@
+# **Abstract**
+Cardiovascular disease (CVD) is the leading cause of death in the United States. This study focuses on Coronary Artery Disease (CAD) and aims to create a model to identify high-risk patients for early intervention. Various machine learning techniques, including classification and regression models and unsupervised learning clustering, are employed to predict heart disease occurrence and understand the key contributing factors. The project aims to provide insights to healthcare professionals for proactive prevention and treatment strategies, ultimately improving patient outcomes.
+
+The analysis showed that age and systolic blood pressure were the most important variables across all models. Additionally, we performed unsupervised learning techniques to cluster heart-stroke patients. The results provided insights into predicting heart stroke and systolic blood pressure, highlighting the importance of variables such as blood pressure, BMI, heart rate, glucose, and education. People with a high level of these factors are at greater risk of having a heart stroke than those with a lower.
+
+Medical expertise is essential for interpreting the data and understanding variable relationships in further research.

@@ -1,0 +1,68 @@
+
+## **8.2 Variable Importance Analysis** 
+
+## Dalex
+
+```{r sysBP_variable_importance,echo = FALSE, message = FALSE, warning= FALSE}
+
+#Linear regression  model
+explainer_lm <- DALEX::explain(fit_lm,
+                        data = select(df_tr_resr,-sysBP),
+                        y = df_tr_resr$sysBP, 
+                        label = "Linear regression")
+
+#Random forest model
+explainer_rf_sys <- DALEX::explain(fit_rf_sys,
+                        data = select(df_tr_resr,-sysBP),
+                        y = as.numeric(df_tr_resr$sysBP),
+                        label = "Random Forest")
+```
+
+
+## Variable Importance Analysis {.tabset}
+
+### **Linear Regression**
+
+:::{style="text-align: justify"}
+
+The linear regression analysis shows that the most important variable is `diaBP` (diastolic blood pressure), as these variables inform about the blood pressure of the patient but at different states. The second most important variable is `age` even though there is a large difference in RMSE loss between the two first ones. 
+
+:::
+
+```{r,results='hide',echo=FALSE}
+calculate_importance <- function(your_model_explainer, n_permutations = 10) {
+  imp <- model_parts(explainer = your_model_explainer,
+                     B = n_permutations,
+                     type = "ratio",
+                     N = NULL)
+  return(imp)
+}
+```
+
+
+
+
+```{r}
+importance_lm  <- calculate_importance(explainer_lm)
+plot(importance_lm) +
+  ggtitle("Feature importance", "")
+```
+
+### **Random Forest**
+
+:::{style="text-align: justify"}
+
+In addition to the DALEX package, we use the `VarImpPlot()` to know what are the most important variables. On the left, the mean squared error increase in percentage and on the right the node purity increase.Both informative measures show that `diaBP` and `age` are the most important variables in both methods. 
+
+:::
+
+```{r}
+importance_rf_sys  <- calculate_importance(explainer_rf_sys)
+plot(importance_rf_sys) +
+  ggtitle("Feature importance", "")
+```
+
+
+```{r}
+varImpPlot(fit_rf_sys , main = "Variable importance")
+```

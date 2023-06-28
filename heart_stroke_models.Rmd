@@ -1,0 +1,352 @@
+# **6. Heart Stroke Prediction and Variable Significance Analysis**
+
+We are now going to fit classification task models such as Logistic Regression, Random Forest, Decision Trees, and Support Vector Machine (SVM), evaluate their performance, and then use the Dalex method to understand our models better and identify the most crucial variable contributing to obtaining heart stroke.
+
+## **6.1 Model Training and Performance Comparison** 
+```{r heart_stroke_models, echo = FALSE, message = FALSE, warning= FALSE}
+
+draw_confusion_matrix <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#3F97D0')
+  text(195, 435, 'Class1', cex=1.2)
+  rect(250, 430, 340, 370, col='#F7AD50')
+  text(295, 435, 'Class2', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#F7AD50')
+  rect(250, 305, 340, 365, col='#3F97D0')
+  text(140, 400, 'Class1', cex=1.2, srt=90)
+  text(140, 335, 'Class2', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}  
+
+```
+
+## Logistic Regression {.tabset}
+
+:::{style="text-align: justify"}
+
+We use Logistic Regression as it is one of the most commonly used, simple, interpretable, and efficient algorithms for binary classification tasks. 
+
+:::
+
+### **Model Fitting**
+
+:::{style="text-align: justify"}
+
+We use AIC selection to find the model with more significant variables.
+
+:::
+
+```{r,results='hide'}
+fit_glm_AIC = train(
+  form = heart_stroke ~ .,
+  data = df_tr_resr,
+  trControl = train_control,
+  method = "glmStepAIC",
+  metric = metric,
+  family = "binomial"
+)
+```
+
+### **Confusion Matrix**
+
+Specificity and Sensitivity are well balanced. However, the Specificity is a bit higher, meaning the model better predicts negative cases of a heart stroke rather than positive ones. The model doesn’t fully correspond to our expectations.
+
+```{r}
+pred_glm_aic <- predict(fit_glm_AIC, newdata = df_te)
+cm_glm_aic <- confusionMatrix(data = pred_glm_aic, reference = df_te$heart_stroke)
+draw_confusion_matrix(cm_glm_aic)
+```
+
+### **P-values Analysis**
+
+:::{style="text-align: justify"}
+
+By analyzing the p-values of our model, we observe that `diaBB` and `BMI` are insignificant variables, so we decided to exclude them from the model.
+
+:::
+
+
+```{r}
+pval_star <- function(pval) {
+  ifelse(pval < 0.001, "***",
+    ifelse(pval < 0.01, "**",
+      ifelse(pval < 0.05, "*", " ")))
+}
+
+pvalues<- fit_glm_AIC$finalModel
+pvalues %>% tidy() %>%
+  select(-statistic) %>%
+  mutate(p.value = paste(round(p.value, 4), pval_star(p.value))) %>%
+  kable(digits = 3,
+    col.names = c("Parameter", "Estimate", "Standard Error", "P.value")
+  ) %>%
+  kable_styling(bootstrap_options = "striped")
+```
+
+
+```{r}
+#Logistic regression
+set.seed(123)
+
+fit_glm_AIC1 = train(
+  form = heart_stroke ~ glucose + gender + BPMeds + cigsPerDay + totChol + sysBP  +
+  heartRate + glucose + age + education,
+  data = df_tr_resr,
+  trControl = train_control,
+  method = "glmStepAIC",
+  metric = metric,
+  family = "binomial"
+)
+```
+
+
+Sensitivity is now lower than it was before we excluded the insignificant variables. As we expect the model to be better at predicting positive cases, we decided to use the first model.
+
+```{r}
+pred_glm_aic1 <- predict(fit_glm_AIC1, newdata = df_te)
+cm_glm_aic1 <- confusionMatrix(data = pred_glm_aic1, reference = df_te$heart_stroke)
+draw_confusion_matrix(cm_glm_aic1)
+```
+
+### **VIF Analysis**
+:::{style="text-align: justify"}
+
+VIF analysis also shows that there is no multicolinearity between variables, as all VIF coefficients are lower than five.
+
+:::
+```{r}
+vif(pvalues) %>% kable(col.names = "VIF Coefficient") %>%  kable_styling(bootstrap_options = "striped")
+```
+
+
+
+## Support Vector Machine (SVM) {.tabset}
+
+:::{style="text-align: justify"}
+We use Support Vector Machine to find the hyperplane to separate the two classes with the largest possible margin.
+:::
+
+### **Model Fitting**
+```{r}
+#SVM
+hp_svm <- expand.grid(cost = 10 ^ ((-2):1))
+set.seed(2024)
+fit_svm <- train(
+  form = heart_stroke~ .,
+  data = df_tr_resr,
+  trControl = train_control,
+  tuneGrid = hp_svm,
+  method = "svmLinear2",
+  metric = metric
+)
+```
+
+### **Optimal Cost**
+```{r}
+C <- fit_svm$finalModel$cost
+paste("The optimal cost for our model is", C) %>% kable(col.names = NULL, align="l")
+```
+
+
+### **Confusion Matrix**
+
+:::{style="text-align: justify"}
+Based on the confusion matrix below, the model's specificity is higher than the sensitivity. Thus, the model performance is better in predicting the negative cases of heart stroke when it is not predicting positive ones. The model doesn't correspond to our expectations. 
+:::
+
+
+```{r}
+pred_svm <- predict(fit_svm, newdata = df_te)
+cmsvm <- confusionMatrix(data = pred_svm, reference = df_te$heart_stroke)
+draw_confusion_matrix(cmsvm)
+```
+
+
+
+## Random Forest {.tabset}
+
+:::{style="text-align: justify"}
+We also use the Random Forest model for the classification tasks by setting the tuning parameter "mtry" to two to control the model's randomness level. 
+:::
+
+### **Model Fitting**
+
+```{r}
+#Random forest 
+hp_rf <- expand.grid(mtry = 2) 
+
+set.seed(453)
+fit_rf <- train(
+  heart_stroke ~ .,
+  data = df_tr_resr,
+  method = 'rf',
+  metric = metric,
+  trControl = train_control,
+  tuneGrid = hp_rf
+)
+
+
+fit_rf$bestTune
+
+```
+
+### **Optimal Number of Trees**
+
+```{r}
+ntree <- fit_rf$finalModel$ntree
+paste("Our random forest model is composed by", ntree, "trees") %>% kable(col.names = NULL, align="l")
+```
+
+
+### **Confusion Matrix**
+
+:::{style="text-align: justify"}
+The accuracy and sensitivity scores of the Random Forest model are by far the highest among other models. 
+:::
+
+```{r}
+pred_rf <- predict(fit_rf, newdata = df_te)
+cmrf <- confusionMatrix(data = pred_rf, reference = df_te$heart_stroke)
+draw_confusion_matrix(cmrf)
+```
+
+
+
+## Decision tree {.tabset}
+
+:::{style="text-align: justify"}
+
+We also use a decision tree to obtain the graphical representation of the model, which is easy to interpret. 
+
+For the model, we tune the complexity parameter "cp" to be in the range from 0.01 to 0.03 with a step size of 0.01 to control the optimal size of the tree.
+:::
+
+### **Model Fitting**
+
+```{r}
+#Decision tree
+hp_ct <- data.frame(cp = c(0.01, 0.02, 0.03))
+
+
+set.seed(2547) 
+
+fit_ct <- train(
+  form = heart_stroke ~ .,
+  data = df_tr_resr,
+  trControl = train_control,
+  tuneGrid = hp_ct,
+  method = "rpart",
+  metric = metric
+)
+```
+
+### **Final Regression Tree**
+
+:::{style="text-align: justify"}
+The final tree is visualized below. The first variable that builds the tree is the most important. In our case, it is `age`.
+:::
+
+```{r}
+fancyRpartPlot(fit_ct$finalModel, main = "Regression tree", caption = NULL)
+```
+
+### **Confusion Matrix**
+
+:::{style="text-align: justify"}
+
+The overall accuracy of the model is slightly lower than Random Forest one. Sensitivity is higher than specificity, which corresponds to the expected results as we are interested in predicting positive cases of heart stroke. 
+:::
+
+```{r}
+pred_ct <- predict(fit_ct, newdata = df_te)
+cmct <- confusionMatrix(data = pred_ct, reference = df_te$heart_stroke)
+draw_confusion_matrix(cmct)
+```
+
+
+## **6.2 Evaluation of the models** 
+
+:::{style="text-align: justify"}
+
+Finally, we compare the accuracy, sensitivity, and specificity of all the models. Based on a balance of these three metrics, we can conclude that the support vector machine performs best in predicting the `heart_stroke` variable.
+
+:::
+
+
+```{r}
+# Calculate accuracy, specificity, and sensitivity
+accuracy <- c(
+  confusionMatrix(predict.train(fit_glm_AIC, newdata = df_te), df_te$heart_stroke)$overall[1],
+  confusionMatrix(predict.train(fit_rf, newdata = df_te), df_te$heart_stroke)$overall[1],
+  confusionMatrix(predict.train(fit_svm, newdata = df_te), df_te$heart_stroke)$overall[1],
+  confusionMatrix(predict.train(fit_ct, newdata = df_te), df_te$heart_stroke)$overall[1]
+)
+
+specificity <- c(
+  confusionMatrix(predict.train(fit_glm_AIC, newdata = df_te), df_te$heart_stroke)$byClass["Specificity"],
+  confusionMatrix(predict.train(fit_rf, newdata = df_te), df_te$heart_stroke)$byClass["Specificity"],
+  confusionMatrix(predict.train(fit_svm, newdata = df_te), df_te$heart_stroke)$byClass["Specificity"],
+  confusionMatrix(predict.train(fit_ct, newdata = df_te), df_te$heart_stroke)$byClass["Specificity"]
+)
+
+sensitivity <- c(
+  confusionMatrix(predict.train(fit_glm_AIC, newdata = df_te), df_te$heart_stroke)$byClass["Sensitivity"],
+  confusionMatrix(predict.train(fit_rf, newdata = df_te), df_te$heart_stroke)$byClass["Sensitivity"],
+  confusionMatrix(predict.train(fit_svm, newdata = df_te), df_te$heart_stroke)$byClass["Sensitivity"],
+  confusionMatrix(predict.train(fit_ct, newdata = df_te), df_te$heart_stroke)$byClass["Sensitivity"]
+)
+
+model <- c("fit_glm_AIC", "fit_rf", "fit_svm", "fit_ct")
+
+
+# Create a tibble with accuracy, specificity, and sensitivity
+results <- tibble(model, accuracy, specificity, sensitivity) %>% arrange(desc(accuracy))
+
+results_table <- results %>% 
+  kable() %>% 
+  kable_styling()
+
+results_table
+```
+
+:::{style="text-align: justify"}
+
+The random forest model has the best accuracy and sensitivity among the models used. However, it has a very low specificity meaning that we predict a high number of false positives and predict heart stroke while it is not the case. However, this low value can be caused by the data imputation that we did.
+
+Based on a balance between these three metrics, the power performance of the rest of our models is more or less similar.
+
+:::
+

@@ -1,0 +1,69 @@
+## **6.3 Variable Importance Analysis** 
+
+## Dalex
+
+:::{style="text-align: justify"}
+
+To explain each feature of the model, we create explainer functions. 
+:::
+
+```{r heart_stroke_variable_importance, echo = FALSE, message = FALSE, warning= FALSE}
+
+#Transform the variable to predict into numeric values
+#df_te <- transform(df_te, heart_stroke=as.numeric(as.factor(df_te$heart_stroke))-1)  
+
+#Random forest model
+explainer_rf <- DALEX::explain(fit_rf,
+                        data = df_tr_resr[, -2],
+                        y = as.numeric(df_tr_resr$heart_stroke),
+                        label = "Random Forest")
+
+#Decision tree
+explainer_ct <- DALEX::explain(fit_ct,
+                        data = df_tr_resr[,-2],
+                        y = as.numeric(df_tr_resr$heart_stroke), 
+                        label = "Decision tree")
+
+#Logistic Regression
+explainer_glm <- DALEX::explain(fit_glm_AIC,
+                        data = df_tr_resr[,-2],
+                        y = as.numeric(df_tr_resr$heart_stroke),
+                        label = "GLM")
+
+
+
+
+```
+
+## Variable Importance Analysis {.tabset}
+
+:::{style="text-align: justify"}
+The analysis below shows that the most important variable in all the models is `age`, followed by `sysBP` (systolic blood pressure).
+:::
+
+### **Random Forest**
+```{r}
+explainer_rf %>% model_parts() %>% plot(show_boxplots = FALSE) + ggtitle("Feature Importance ", "")
+```
+
+### **Decision tree**
+```{r}
+explainer_ct %>% model_parts() %>% plot(show_boxplots = FALSE) + ggtitle("Feature Importance ", "")
+```
+
+### **GLM**
+```{r}
+explainer_glm %>% model_parts() %>% plot(show_boxplots = FALSE) + ggtitle("Feature Importance ", "")
+```
+
+
+
+
+## **Further Analysis**
+
+:::{style="text-align: justify"}
+We identified that age and systolic blood pressure are the most critical contributors to obtaining heart stroke. We are now interested in predicting the level of systolic blood pressure based on other factors. We will exclude the `heart_stroke` variable from the dataset and use regression task models for prediction.
+
+Based on the data, we will also perform unsupervised learning techniques to cluster heart-stroke patients. 
+
+:::

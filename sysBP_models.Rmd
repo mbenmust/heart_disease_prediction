@@ -1,0 +1,127 @@
+# **8. Systolic Blood Pressure Prediction and Variable Significance Analysis**
+
+## **8.1 Model Training and Performance comparison** 
+
+:::{style="text-align: justify"}
+
+In order to predict systolic blood pressure we use Linear Regression and Random forest. The same training set will be used, however without the `heart_stroke`variable.
+
+:::
+
+## Linear Regression {.tabset}
+
+
+```{r sysBP_models,echo = FALSE, message = FALSE, warning= FALSE}
+#remove the variable heart_stroke from our training set
+df_tr_resr <- df_tr_resr %>% 
+  select(-heart_stroke)
+```
+
+### **Model Fitting**
+
+```{r}
+fit_lm <- lm(sysBP~., data=df_tr_resr)
+summary(fit_lm)
+```
+
+:::{style="text-align: justify"}
+
+The p-values give us an idea about the significant explanatory variables of the systolic blood pressure such as `gender`
+,`totChol`,`diaBP`,`heartRate`,`glucose`and `education`.
+
+We assume that there is only a statistical relationship between `education`and `sysBP`and not a causal one as other factors should be included to analyze this relationship. 
+
+Additionally, the significant intercept suggests that the data set consists of patients with a high baseline systolic blood pressure.
+
+:::
+
+### **VIF Analysis**
+
+
+```{r}
+vif(fit_lm) %>% kable(col.names = "VIF Coefficient") %>%  kable_styling(bootstrap_options = "striped")
+```
+
+:::{style="text-align: justify"}
+
+There is no multicolinearity between our variables as the VIF coefficient is lower than five for all of them.
+
+:::
+
+### **Variable selection and interpretation**
+
+:::{style="text-align: justify"}
+
+We apply a  stepwise variable selection in order to get a linear regression model with the most significant variables. 
+
+:::
+
+```{r,results='hide'}
+step(fit_lm) # see the result
+fit_lm_sel <- step(fit_lm) # store the final model into mod_lm_sel
+```
+
+```{r}
+summary(fit_lm_sel)
+```
+
+:::{style="text-align: justify"}
+
+We ended up with a model of six variables out of eight: `gender`,`totChol`,`diaBP`,`heartRate`,`glucose`and `education`.
+
+The R squared is lower than 0.7, and the quality of the model is low.
+:::
+
+### **Inference**
+
+:::{style="text-align: justify"}
+
+We now predict the systolic blood pressure on the testing set.
+
+:::
+
+```{r}
+fit_lm_pred <- predict(fit_lm_sel, newdata=df_te)
+plot(df_te$sysBP ~ fit_lm_pred,main = "Comparing predicted vs. observed systolic BP", xlab="Prediction", ylab="Observed systolic BP",col = "blue")
+abline(0,1)
+
+```
+
+```{r}
+fit_lm_pred[c(1,2)]
+```
+
+:::{style="text-align: justify"}
+
+We observe that a large part of systolic blood pressure is underestimated, the difference between actual values and predicted ones is less important for lower systolic blood pressure. Regarding the values at the center, blood pressure is overestimated.
+
+:::
+
+
+## Random forest {.tabset}
+
+
+### **Model Fitting**
+
+```{r}
+fit_rf_sys <- randomForest(sysBP~., data= df_tr_resr , ntree=10, importance=TRUE)
+pred_rf_sys<-predict(fit_rf_sys, newdata= df_te )
+```
+
+### **Inference**
+
+```{r}
+(rmse <- sqrt(mean((df_te$sysBP - pred_rf_sys)^2)))
+
+plot(df_te$sysBP ~ pred_rf_sys ,main = "Comparing predicted vs. observed systolic BP",
+xlab="Prediction", ylab="Observed systolic BP",col = "blue")
+abline(0,1)
+```
+
+## Models comparison {.tabset}
+
+:::{style="text-align: justify"}
+
+The plot comparing the predicted and actual values shows that both models exhibit a similar distribution of points around a line representing an accuracy of 1. This suggests that both models perform similarly the same in predicting the actual values : some values are underestimated while others are over estimated.
+
+:::

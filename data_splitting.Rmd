@@ -1,0 +1,54 @@
+# **5. Data Splitting and Balancing** {.tabset}
+
+
+## **Splitting**
+
+We first split the dataset into a training set (80%) and a test set (20%).
+
+```{r}
+data_transformed$heart_stroke <- as.factor(data_transformed$heart_stroke)
+
+set.seed(346)
+index_tr <- createDataPartition(y = data_transformed$heart_stroke, p= 0.8, list = FALSE)
+df_tr <- data_transformed[index_tr,]
+df_te <- data_transformed[-index_tr,]
+```
+
+## **Balancing**
+:::{style="text-align: justify"}
+
+Then we balance the training set with a resampling method.
+
+:::
+
+```{r}
+#Resampling
+df_tr_no <- filter(df_tr, heart_stroke==0) ## the "No" cases
+df_tr_yes <- filter(df_tr, heart_stroke==1) ## The "Yes" cases
+
+n_no <- max(table(df_tr$heart_stroke)) 
+
+index_yes <- sample(size=n_no, x=1:nrow(df_tr_yes), replace=TRUE)
+df_tr_resr <- data.frame(rbind(df_tr_no, df_tr_yes[index_yes,]))
+table(df_tr_resr$heart_stroke)
+
+
+
+```
+
+## **CV**
+:::{style="text-align: justify"}
+And finally, we split our training data with a ten-fold cross-validation technique to find the optimal hyperparameters by evaluating the model's performance across different combinations of training and validation data.
+:::
+
+```{r}
+#CV
+train_control <- trainControl(method = "cv", number = 10)
+metric <- "Accuracy"
+
+```
+
+
+
+
+ 

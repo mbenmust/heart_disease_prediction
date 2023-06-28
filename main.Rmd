@@ -1,0 +1,17 @@
+---
+title: "| ![](logo.png){width=6in} \\vspace{0.2in} \n Heart Stroke Prediction \n \\vspace{0.1in} "
+subtitle: ""
+author: "Meriem Ben Mustapha & Khrystyna Khmilovska\n \\vspace{1in} "
+date: "Last compiled on `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  rmdformats::material:
+    code_folding: hide
+    highlight: espresso 
+    self_contained: true
+    mathjax: false
+warnings: false
+---
+
+```{r child=c('setup.Rmd', 'non.rmd', 'abstract.rmd', 'intro.rmd', 'data_modification.rmd', 'eda.rmd', 'data_splitting.rmd', 'heart_stroke_models.rmd','heart_stroke_variable_importance.rmd','heart_stroke_unsupervised_models.rmd', 'sysBP_models.rmd', 'sysBP_variable_importance.rmd', 'deployment.rmd','references.rmd')}
+```
+
